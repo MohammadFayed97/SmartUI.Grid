@@ -12,16 +12,16 @@ pool:
 variables:
   buildConfiguration: 'Release'
   version: 1.0.0
-  myproject: 'src/SmartUI.Grid.csproj'
+  myproject: 'src/SmartUI.Grid/SmartUI.Grid.csproj'
 
 steps:
 
 - task: DotNetCoreCLI@2
-  displayName: 'Restore Nuget packages'
   inputs:
     command: 'restore'
-    projects: $(myproject)
+    projects: '$(myproject)'
     feedsToUse: 'select'
+    vstsFeed: '93747bff-8bc4-4a6c-a28d-05404fdcd0ce/c0bc98ee-b8ae-481e-a014-f2ec1ba044f5'
 
 - task: DotNetCoreCLI@2
   displayName: 'Build $(buildConfiguration) for Project $(myproject)'
