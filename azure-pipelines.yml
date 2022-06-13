@@ -15,7 +15,9 @@ variables:
   myproject: 'src/SmartUI.Grid/SmartUI.Grid.csproj'
 
 steps:
-
+- task: UseDotNet@2
+  inputs:
+    version: '5.0.x'
 - task: DotNetCoreCLI@2
   inputs:
     command: 'restore'
