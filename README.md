@@ -3,6 +3,14 @@
 <h4 align="center">The light weight DataTable created with Blazor and support Filter, Sort, Pagination and more Features.</h4>
 
 <p align="center">
+    <img src="https://dev.azure.com/CodeCharp/AntiRap.Core/_apis/build/status/MohammadFayed97.AntiRap.Core?branchName=main"
+         alt="Build Status">
+  <a href="https://www.nuget.org/packages/SmartUI.Grid">
+  <img alt="Nuget" src="https://buildstats.info/nuget/SmartUI.Grid">
+    </a>
+</p>
+
+<p align="center">
   <a href="#key-features">Demo</a> •
   <a href="#key-features">Key Features</a> •
   <a href="#key-features">Important Notice</a> •
@@ -112,3 +120,7 @@ This project is still under active development! Currently an alpha version is av
 
 ## License
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
+  
+## You may also like...
+
+- [UniversityHostel](https://github.com/MohammadFayed97/UniversityHostel) [Core Hosted BlazorWA] - Sample Website that aim to help student to register his application online to university hostel.
