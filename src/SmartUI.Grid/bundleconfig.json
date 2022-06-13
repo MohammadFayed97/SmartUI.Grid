@@ -1,0 +1,10 @@
+[
+  {
+    "outputFileName": "wwwroot/smartGrid.css",
+    "inputFiles": [
+      "wwwroot/css/bootstrap/bootstrap.css",
+      "wwwroot/css/fontawesome/css/all.css",
+      "wwwroot/css/smartGrid.css"
+    ]
+  }
+]

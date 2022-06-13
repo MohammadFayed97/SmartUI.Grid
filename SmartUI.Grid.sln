@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.2.32516.85
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SmartUI.Grid.Sample", "SmartUI.Grid.Sample\SmartUI.Grid.Sample.csproj", "{EF6DA0BB-BC3C-49D7-B9E7-54657F5CB5C6}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SmartUI.Grid", "src\SmartUI.Grid\SmartUI.Grid.csproj", "{09917839-4E88-4A4B-A493-3A2B8814B0D1}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EF6DA0BB-BC3C-49D7-B9E7-54657F5CB5C6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EF6DA0BB-BC3C-49D7-B9E7-54657F5CB5C6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EF6DA0BB-BC3C-49D7-B9E7-54657F5CB5C6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EF6DA0BB-BC3C-49D7-B9E7-54657F5CB5C6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{09917839-4E88-4A4B-A493-3A2B8814B0D1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{09917839-4E88-4A4B-A493-3A2B8814B0D1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{09917839-4E88-4A4B-A493-3A2B8814B0D1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{09917839-4E88-4A4B-A493-3A2B8814B0D1}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {98D7F1A8-3887-45C7-A4AE-F1B647A35C0F}
+	EndGlobalSection
+EndGlobal

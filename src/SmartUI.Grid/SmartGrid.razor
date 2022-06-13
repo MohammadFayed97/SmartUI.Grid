@@ -1,0 +1,165 @@
+﻿@typeparam TSource
+@inherits BaseOperationsGrid<TSource, GridColumns, GridColumn>
+@using Microsoft.AspNetCore.Components.Web
+
+<CascadingValue Value="this" IsFixed="true">
+    @ChildContent
+</CascadingValue>
+
+<div class="d-flex" style="justify-content:space-between; align-items: center">
+    @if (AllowPagination && paginationSettings is not null)
+    {
+        <PageSizeDropDown PageSizes="paginationSettings.PageSizes" Value="paginationSettings.PageSize" OnSelectedPageSize="OnPageSizeChange" />
+    }
+</div>
+
+
+@if (_gridColumns is not null)
+{
+    List<GridColumn> visibleColumns = _gridColumns.GetVisibleColumns();
+    <div @ref="ElementRef" class="table-responsive p-0" style="max-height: 550px;">
+        <table @ref="ElementRef" class="table smart-grid @CssClass table-head-fixed text-nowrap table-@Mode.ToString().ToLower()" id="@Id">
+            <thead>
+                <tr>
+                    @foreach (var column in visibleColumns)
+                    {
+                        <th @key="column" class="@column.CssClass" style="@column.GetColumnHeaderStyle()" id="@column.columnId" nowrap>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="head-template d-flex justify-content-between align-items-center w-100 @column.GetSortingCssClasses()" @onclick="() => SortByColumn(column)">
+                                    <div>
+                                        @column.HeaderTemplate
+                                    </div>
+                                    <div class="sort-icons">
+                                        <i class="fas fa-long-arrow-alt-down sort-down"></i>
+                                        <i class="fas fa-long-arrow-alt-up sort-up"></i>
+                                    </div>
+                                </div>
+                                @if (AllowFilter && column.AllowFilter)
+                                {
+                                    var filterRule = _filterRules.SingleOrDefault(r => r.Id == column.columnId);
+                                    <div class="filter-icon d-inline-block cursor-pointer pr-2" @onclick="(args) => OnFilterClicked(column)">
+                                        <i class="fa-solid fa-filter" style="font-size: 20px; opacity: 0.8;"></i>
+                                    </div>
+                                    if (filterRule != null)
+                                    {
+                                        <GridFilterInput TModel="TSource"
+                                            FilterRule="filterRule"
+                                            ShowFilterInput="filterRule.Id == _filterableColumnId && _showFilterPopover"
+                                            OnFilterApply="ApplyFilter"
+                                            OnFilterCleard="RemoveFilter" />
+                                    }
+                                }
+                            </div>
+                            @*<div style="display: grid; align-items: center;">
+                                <div class="d-inline-block  float-left " style="grid-column-start: 1; grid-column-end: 5; " @onclick="(args) => SortByColumn(column)">
+                                    @column.HeaderTemplate
+                                </div>
+                                <div class="grid-operation d-inline-block text-right" style="line-height : 4px; grid-column-start:5 ;">
+                                    @if (AllowSorting)
+                                    {
+                                        if (column.sortDirection == SortDirection.Asc)
+                                        {
+                                            <span class="fa fa-arrow-down" style="line-height: 25px;" aria-hidden="true" title="Sort Ascending"></span>
+                                        }
+                                        else if (column.sortDirection == SortDirection.Desc)
+                                        {
+                                            <span class="fa fa-arrow-up" style="line-height: 25px;" aria-hidden="true" title="Sort Descending"></span>
+                                        }
+                                    }
+                                    @if (column.AllowFilter)
+                                    {
+                                        var filterRule = _filterRules.SingleOrDefault(r => r.Id == column.columnId);
+                                        <span class="fa fa-filter @(filterRule != null && filterRule.IsApplied ? "text-primary" : "")" style="cursor: pointer; line-height: 25px;" @onclick="(args) => OnFilterClicked(column)"></span>
+                                        if (filterRule != null)
+                                        {
+                                            <GridFilterInput TModel="TSource"
+                                             FilterRule="filterRule"
+                                             ShowFilterInput="filterRule.Id == _filterableColumnId && _showFilterPopover"
+                                             OnFilterApply="ApplyFilter"
+                                             OnFilterCleard="RemoveFilter" />
+                                        }
+                                    }
+                                </div>
+                            </div>*@
+                        </th>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                @if (isDataLoading)
+                {
+                    <tr>
+                        <td colspan="@visibleColumns.Count">
+                            Loading...
+                            @*<Spinner IsLoading="true" />*@
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    if (_items is null || _items.Count() == 0)
+                    {
+                        <tr>
+                            <td colspan="@visibleColumns.Count" class="text-center">
+                                <p><h3>@NoRecordsText</h3></p>
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (TSource item in _items)
+                        {
+                            <tr @key="item" id="@item.GetHashCode()" class="@(item.Equals(_selectedItem) ? SelectedItemCssClass : "")" style="cursor: pointer"
+                @onclick="@(async (args) => await OnRowClickedEvent(args, item))">
+                                @foreach (var column in visibleColumns)
+                                {
+                                    <td @key="column" style="cursor: pointer; @column.GetColumnCellStyle()">@column.RowTemplate(item)</td>
+                                }
+                            </tr>
+                        }
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+    @if (AllowPagination && paginationSettings is not null)
+    {
+        <div class="paging mt-3">
+            <Pagination MetaData="_responseMetaData" Alignment="paginationSettings.Alignment" LimitOfVisiblePages="paginationSettings.LimitOfPages"
+                SelectedPage="OnSelectedPage" />
+        </div>
+    }
+}
+<style>
+    .cursor-pointer {
+        cursor: pointer;
+    }
+
+    .grid-operation {
+        position: relative;
+    }
+
+    .grid-container {
+        overflow: auto;
+        height: 550px;
+        position: relative;
+    }
+    table thead tr .head-template {
+        padding: 10px;
+        cursor: pointer;
+    }
+
+    table thead tr .filter-icon {
+        padding: 10px 0;
+    }
+
+    .sorting .sort-icons .sort-down,
+    .sorting .sort-icons .sort-up {
+        opacity: 0.5;
+    }
+
+    .sorting.sorting-asc .sort-icons .sort-down,
+    .sorting.sorting-desc .sort-icons .sort-up {
+        opacity: 0.8;
+    }
+</style>
