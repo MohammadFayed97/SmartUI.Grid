@@ -148,6 +148,6 @@
         /// <summary>
         /// Table mode (Light - Dark)
         /// </summary>
-        [Parameter] public TableMode Mode { get; set; } = TableMode.Light;
+        [Parameter] public TableMode Mode { get; set; } = TableMode.None;
     }
 }

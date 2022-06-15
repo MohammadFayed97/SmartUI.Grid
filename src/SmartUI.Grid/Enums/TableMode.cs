@@ -3,6 +3,7 @@
     public enum TableMode
     {
         Light,
-        Dark
+        Dark,
+        None
     }
 }
