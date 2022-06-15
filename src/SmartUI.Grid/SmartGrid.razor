@@ -29,7 +29,7 @@
                                     <div>
                                         @column.HeaderTemplate
                                     </div>
-                                    @if(string.IsNullOrEmpty(column.PropertyName)){
+                                    @if(!string.IsNullOrEmpty(column.PropertyName)){
                                         <div class="sort-icons">
                                             <i class="fas fa-long-arrow-alt-down sort-down"></i>
                                             <i class="fas fa-long-arrow-alt-up sort-up"></i>
