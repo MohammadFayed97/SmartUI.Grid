@@ -24,7 +24,6 @@
 
         public override Task SetParametersAsync(ParameterView parameters)
         {
-            //CssClass = "table-bordered table-striped";
             paginationSettings ??= new PaginationSettings();
 
             return base.SetParametersAsync(parameters);
@@ -126,6 +125,8 @@
         {
             this.paginationSettings = paginationSettings;
             _filterQuery.PageSize = paginationSettings.PageSize;
+
+            StateHasChanged();
         }
 
         /// <summary>
