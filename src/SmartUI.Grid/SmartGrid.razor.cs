@@ -90,6 +90,9 @@
 
         private async void SortByColumn(GridColumn column)
         {
+            if (string.IsNullOrEmpty(column.PropertyName))
+                return;
+
             SortDirection nextDirection = SortDirection.None;
             if (column.sortDirection == SortDirection.None) nextDirection = SortDirection.Asc;
             else if (column.sortDirection == SortDirection.Asc) nextDirection = SortDirection.Desc;
