@@ -115,7 +115,7 @@
                 @onclick="@(async (args) => await OnRowClickedEvent(args, item))">
                                 @foreach (var column in visibleColumns)
                                 {
-                                    <td @key="column" style="cursor: pointer; @column.GetColumnCellStyle()">@column.RowTemplate(item)</td>
+                                    <td @key="column" class="@column.CssClass" style="cursor: pointer; @column.GetColumnCellStyle()">@column.RowTemplate(item)</td>
                                 }
                             </tr>
                         }
