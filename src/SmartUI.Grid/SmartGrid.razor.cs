@@ -13,20 +13,23 @@
     using System.Text;
     using System.Threading.Tasks;
 
-    public partial class SmartGrid<TSource> : BaseOperationsGrid<TSource, GridColumns, GridColumn>, ISmartGrid
+    public partial class SmartGrid<TSource> : BaseOperationsGrid<TSource>, ISmartGrid
         where TSource : class
     {
-        protected PaginationSettings paginationSettings;
-        private TSource _selectedItem;
-        private Guid _filterableColumnId;
-        private bool _showFilterPopover;
+        private PaginationSettings paginationSettings { get; set; }
+        private TSource selectedItem;
+        private Guid filterableColumnId;
+        private bool showFilterPopover;
         private int greaterFilterOrder;
+        private bool showSpinner;
 
-        public override Task SetParametersAsync(ParameterView parameters)
+        protected override void OnInitialized()
         {
+            DataSource ??= new List<TSource>();
+            AllItems = DataSource;
             paginationSettings ??= new PaginationSettings();
 
-            return base.SetParametersAsync(parameters);
+            base.OnInitialized();
         }
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
@@ -35,61 +38,59 @@
 
             await GetDataSource();
         }
-
-        private async void OnPageSizeChange(int pageSize)
+        private async Task OnPageSizeChange(int pageSize)
         {
-            _filterQuery.PageSize = pageSize;
-            _filterQuery.PageNumber = 1;
+            FilterationData.PageSize = pageSize;
+            FilterationData.PageNumber = 1;
+
             await GetDataSource();
         }
-        private async void OnSelectedPage(int pageNumber)
+        private async Task OnSelectedPage(int pageNumber)
         {
-            _filterQuery.PageNumber = pageNumber;
+            FilterationData.PageNumber = pageNumber;
+
             await GetDataSource();
         }
         private void OnFilterClicked(GridColumn column)
         {
-            if (_filterableColumnId == column.columnId) _showFilterPopover = !_showFilterPopover;
+            if (filterableColumnId == column.columnId) showFilterPopover = !showFilterPopover;
             else
             {
-                _filterableColumnId = column.columnId;
-                _showFilterPopover = true;
+                filterableColumnId = column.columnId;
+                showFilterPopover = true;
             }
-            if (_filterRules.SingleOrDefault(r => r.Id == column.columnId) == null)
-                _filterRules.Add(new FilterRule<TSource>(column.columnId, column.PropertyName, PropertyHandler.GetPropertyType<TSource>(column.PropertyName), ObjectFilter.Equals));
+            if (FilterRules.SingleOrDefault(r => r.Id == column.columnId) == null)
+                FilterRules.Add(new FilterRule<TSource>(column.columnId, column.PropertyName, PropertyHandler.GetPropertyType<TSource>(column.PropertyName), ObjectFilter.Equals));
 
             StateHasChanged();
         }
         private async Task ApplyFilter(Guid columnId)
         {
-            FilterRule<TSource> selectedFilterRule = _filterRules?.SingleOrDefault(r => r.Id == columnId);
+            FilterRule<TSource> selectedFilterRule = FilterRules?.SingleOrDefault(r => r.Id == columnId);
             if (selectedFilterRule is null)
                 return;
 
             selectedFilterRule.IsApplied = true;
             selectedFilterRule.UpdateFilterOrder(++greaterFilterOrder);
-            ApplyFilterOnDataSource();
+            
+            await GetDataSource();
         }
-        private void RemoveFilter(Guid columnId)
+        private async Task RemoveFilter(Guid columnId)
         {
-            FilterRule<TSource> selectedFilterRule = _filterRules?.SingleOrDefault(r => r.Id == columnId);
-            _filterableColumnId = Guid.Empty;
+            FilterRule<TSource> selectedFilterRule = FilterRules?.SingleOrDefault(r => r.Id == columnId);
+            filterableColumnId = Guid.Empty;
             if (selectedFilterRule is null)
                 return;
 
-            _filterRules.Remove(selectedFilterRule);
-            ApplyFilterOnDataSource();
+            FilterRules.Remove(selectedFilterRule);
+            
+            await GetDataSource();
         }
 
-        private async Task OnRowClickedEvent(MouseEventArgs args, TSource item)
-        {
-            _selectedItem = item;
-            await RowClickedEvent.InvokeAsync(item);
-        }
 
-        private async void SortByColumn(GridColumn column)
+        private async Task SortByColumn(GridColumn column)
         {
-            if (string.IsNullOrEmpty(column.PropertyName))
+            if (string.IsNullOrEmpty(column.PropertyName) || !column.AllowSorting)
                 return;
 
             SortDirection nextDirection = SortDirection.None;
@@ -100,35 +101,61 @@
 
             StringBuilder orderQuery = new StringBuilder();
 
-            foreach (GridColumn sortColumn in _gridColumns?.GetAllColumns()?.Where(e => e.sortDirection != SortDirection.None) ?? new List<GridColumn>())
+            foreach (GridColumn sortColumn in gridColumns?.GetAllColumns()?.Where(e => e.sortDirection != SortDirection.None) ?? new List<GridColumn>())
             {
                 orderQuery.Append($"{sortColumn.PropertyName} {sortColumn.sortDirection},");
             }
 
-            _filterQuery.OrderBy = orderQuery.ToString();
+            FilterationData.OrderBy = orderQuery.ToString();
             await GetDataSource();
         }
 
-        public async Task GridRefresh() => await GetDataSource();
-        public async Task GridRefreshWithFilterRules(IEnumerable<QueryFilterRule> queryFilterRules)
+        private async Task GetDataSource()
         {
-            _filterQuery.FilterRules = queryFilterRules;
-            await GridRefresh();
-        }
+            await Loading(PerformClientSideDataManipulations);
 
-        protected override async Task GetDataSource()
-        {
-            await base.GetDataSource();
-            paginationSettings.PageSize = _responseMetaData.PageSize;
+            paginationSettings.UpdatePageSize(PaginationMetaData.PageSize);
         }
         public void AddPaginationSetting(PaginationSettings paginationSettings)
         {
             this.paginationSettings = paginationSettings;
-            _filterQuery.PageSize = paginationSettings.PageSize;
+            FilterationData.PageSize = paginationSettings.PageSize;
 
             StateHasChanged();
         }
+        private async Task Loading(Func<Task> func)
+        {
+            showSpinner = true;
+            StateHasChanged();
 
+            await func();
+
+            showSpinner = false;
+            StateHasChanged();
+        }
+        private async Task OnRowClickedEvent(MouseEventArgs args, TSource item)
+        {
+            selectedItem = item;
+            await RowClickedEvent.InvokeAsync(item);
+        }
+        public async Task GridRefresh() => await GetDataSource();
+        private GridRowSetting InvokeQueryCellInfo(TSource data)
+        {
+            QueryCellInfoEventArgs<TSource> cellInfo = new QueryCellInfoEventArgs<TSource>(data);
+            QueryCellInfo.Invoke(cellInfo);
+
+            return cellInfo.Row;
+        }
+
+        /// <summary>
+        /// This value show when no record exist 
+        /// </summary>
+        [Parameter] public string NoRecordsText { get; set; } = "No Data Available";
+
+        /// <summary>
+        /// Specifies the content to be rendered inside <see cref="ChildContent"/>.
+        /// </summary>
+        [Parameter] public RenderFragment ChildContent { get; set; }
         /// <summary>
         /// Fire when row cliecked.
         /// </summary>
@@ -138,7 +165,7 @@
         /// <summary>
         /// Get or set css class that applied on item when select it.
         /// </summary>
-        [Parameter] public string SelectedItemCssClass { get; set; } = "bg-info";
+        [Parameter] public string SelectedItemCssClass { get; set; } = "bg-info text-white";
 
         /// <summary>
         /// Set table css class
@@ -153,5 +180,7 @@
         /// Table mode (Light - Dark)
         /// </summary>
         [Parameter] public TableMode Mode { get; set; } = TableMode.None;
+        [Parameter] public Dictionary<string, object> RowAttributes { get; set; }
+        [Parameter] public Action<QueryCellInfoEventArgs<TSource>> QueryCellInfo { get; set; }
     }
 }

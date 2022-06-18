@@ -8,7 +8,7 @@
     <select class="custom-select form-control" value="@Value" @onchange="OnPageSizeSelected">
         @foreach (int pageSize in PageSizes ?? new List<int>())
         {
-            <option value="@pageSize">@pageSize</option>
+            <option value="@pageSize" selected="@(Value == pageSize)">@pageSize</option>
         }
     </select>
 </div>

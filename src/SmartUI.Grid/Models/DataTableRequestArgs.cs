@@ -4,15 +4,15 @@
 
     public class DataTableRequestArgs<TModel>
     {
-        public FilterQuery filterQuery { get; private set; } = new FilterQuery();
+        public FilterationData filterQuery { get; private set; } = new FilterationData();
 
-        public DataTableRequestArgs(int pageNumber, int pageSize, List<QueryFilterRule> filterRules)
+        public DataTableRequestArgs(int pageNumber, int pageSize, List<FilterRuleModel> filterRules)
         {
             filterQuery.PageNumber = pageNumber;
             filterQuery.PageSize = pageSize;
             filterQuery.FilterRules = filterRules;
         }
 
-        public DataTableRequestArgs(FilterQuery parameters) => filterQuery = parameters;
+        public DataTableRequestArgs(FilterationData parameters) => filterQuery = parameters;
     }
 }

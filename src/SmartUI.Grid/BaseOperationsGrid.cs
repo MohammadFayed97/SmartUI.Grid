@@ -3,7 +3,6 @@
     using AntiRap.Core.DynamicFilter;
     using AntiRap.Core.Pagination;
     using Microsoft.AspNetCore.Components;
-    using SmartUI.Grid.Abstractions;
     using SmartUI.Grid.Extentions;
     using SmartUI.Grid.Models;
     using System;
@@ -11,60 +10,41 @@
     using System.Linq;
     using System.Threading.Tasks;
 
-    public abstract class BaseOperationsGrid<TSource, TColumns, TColumn> : BaseGrid<TSource, TColumns, TColumn>, IBaseOperationGrid<TColumns, TColumn>
+    public abstract class BaseOperationsGrid<TSource> : BaseGrid<TSource>
         where TSource : class
-        where TColumns : BaseGridColumns<TColumn>
-        where TColumn : BaseGridColumn
     {
-        protected FilterQuery _filterQuery = new FilterQuery();
-        protected MetaData _responseMetaData = new MetaData();
-        protected List<FilterRule<TSource>> _filterRules = new List<FilterRule<TSource>>();
+        protected IEnumerable<TSource> AllItems { get; set; }
+        protected MetaData PaginationMetaData { get; set; } = new MetaData();
+        protected List<FilterRule<TSource>> FilterRules { get; set; } = new List<FilterRule<TSource>>();
+        protected FilterationData FilterationData { get; set; } = new FilterationData();
 
-        protected void PerformClientSideDataManipulations()
+        protected Task PerformClientSideDataManipulations()
         {
-            _filterQuery.FilterRules = GetQueryFilterRulesToAppliedFilterRules();
+            FilterationData.FilterRules = GetAppliedFilterRules();
 
-            var data = DataSource?.AsQueryable();
+            if (DataSource is null) DataSource = new List<TSource>();
+            IQueryable<TSource> data = DataSource.AsQueryable();
 
-            if (data is not null && data.Count() > 0)
+            if (data.Any())
             {
-                if (AllowFilter) data = data.Filter(_filterQuery.FilterRules);
-                if (AllowSorting) data = data.Sort(_filterQuery.OrderBy);
+                if (AllowFilter) data = data.Filter(FilterationData.FilterRules);
+                if (AllowSorting) data = data.Sort(FilterationData.OrderBy);
                 if (AllowPagination)
                 {
-                    PagedList<TSource> pagedList = data.ToPagedList(_filterQuery.PageSize, _filterQuery.PageNumber);
+                    PagedList<TSource> pagedList = data.ToPagedList(FilterationData.PageSize, FilterationData.PageNumber);
                     data = pagedList.AsQueryable();
-                    _responseMetaData = pagedList.MetaData;
+                    PaginationMetaData = pagedList.MetaData;
                 }
             }
-            _items = data?.ToList();
-            StateHasChanged();
-        }
-        protected override async Task GetDataSource()
-        {
-            await Loading(async () =>
-            {
-                if (_dataManger is not null)
-                    await PerformServerSideDataManipulations(() => _httpFeatureService.GetAsync(_dataManger.Url, _filterQuery));
-                else
-                    PerformClientSideDataManipulations();
-            });
-        }
-        protected async Task PerformServerSideDataManipulations(Func<Task<PagedResponse<TSource>>> getData)
-        {
-            PagedResponse<TSource>? pagedDatasource = await getData();
 
-            DataSource = pagedDatasource.Items;
-            _items = pagedDatasource.Items;
-            _responseMetaData = pagedDatasource.MetaData;
-
-            _items = DataSource.AsQueryable().Filter(GetQueryFilterRulesToAppliedFilterRules());
+            AllItems = data.ToList();
+            
+            return Task.CompletedTask;
         }
-        protected void ApplyFilterOnDataSource() => _items = DataSource.AsQueryable().Filter(GetQueryFilterRulesToAppliedFilterRules());
-        private IEnumerable<QueryFilterRule> GetQueryFilterRulesToAppliedFilterRules()
+        protected IEnumerable<FilterRuleModel> GetAppliedFilterRules()
         {
-            List<FilterRule<TSource>> appliedFilterRules = _filterRules?.Where(r => r.IsApplied)?.ToList();
-            return appliedFilterRules?.Select(r => new QueryFilterRule
+            List<FilterRule<TSource>> appliedFilterRules = FilterRules?.Where(r => r.IsApplied).ToList();
+            return appliedFilterRules?.Select(r => new FilterRuleModel
             {
                 Field = r.PropertyName,
                 Value1 = r.FilterValue1,
@@ -73,7 +53,10 @@
                 DisplayOrder = r.Order
             }).ToList();
         }
-
+        /// <summary>
+        /// spacify the DataSource to component
+        /// </summary>
+        [Parameter] public IEnumerable<TSource> DataSource { get; set; }
         [Parameter] public bool AllowPagination { get; set; }
         [Parameter] public bool AllowSorting { get; set; }
         [Parameter] public bool AllowFilter { get; set; }

@@ -7,8 +7,8 @@
     public interface IHttpFeatureService<TModel>
             where TModel : class
     {
-        Task<PagedResponse<TModel>> GetAsync(string url, FilterQuery filterQuery = null);
+        Task<PagedResponse<TModel>> GetAsync(string url, FilterationData filterQuery = null);
         Task<IEnumerable<TModel>> GetDataAsync(string url);
-        Task<IEnumerable<TModel>> GetByPredicateAsync(string url, List<QueryFilterRule> queryFilterRules);
+        Task<IEnumerable<TModel>> GetByPredicateAsync(string url, List<FilterRuleModel> queryFilterRules);
     }
 }

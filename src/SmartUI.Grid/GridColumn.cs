@@ -17,11 +17,7 @@
                 throw new ArgumentNullException(nameof(GridColumns), $"{nameof(GridColumn)} must be include in {nameof(GridColumns)} Component");
 
             columnId = Guid.NewGuid();
-        }
-        protected override void OnAfterRender(bool firstRender)
-        {
-            if (firstRender)
-                GridColumns.AddColumn(this);
+            GridColumns.AddColumn(this);
         }
 
         public override string GetColumnHeaderStyle()
@@ -69,10 +65,12 @@
 
             return stringBuilder.ToString();
         }
+
+
         /// <summary>
         /// Gets or sets the cascaded parent table component.
         /// </summary>
-        [CascadingParameter] public GridColumns GridColumns { get; set; }
+        [CascadingParameter(Name = "ParentGridColumns")] public GridColumns GridColumns { get; set; }
 
         /// <summary>
         /// Indicates visiblilty to column

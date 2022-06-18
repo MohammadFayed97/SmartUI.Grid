@@ -24,7 +24,7 @@
             //_client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
         }
 
-        public async Task<PagedResponse<TModel>> GetAsync(string url, FilterQuery filterQuery = null)
+        public async Task<PagedResponse<TModel>> GetAsync(string url, FilterationData filterQuery = null)
         {
             //string fullUrl = url;
             //if(parameters is not null)
@@ -52,11 +52,11 @@
             };
             return PageResponse;
         }
-        public async Task<IEnumerable<TModel>> GetByPredicateAsync(string url, List<QueryFilterRule> queryFilterRules)
+        public async Task<IEnumerable<TModel>> GetByPredicateAsync(string url, List<FilterRuleModel> queryFilterRules)
         {
             var request = new HttpRequestMessage(HttpMethod.Get, url);
             var index = 1;
-            foreach (QueryFilterRule queryFilter in queryFilterRules)
+            foreach (FilterRuleModel queryFilter in queryFilterRules)
             {
                 var jsonParameters = JsonConvert.SerializeObject(queryFilter);
                 request.Headers.Add($"X-Filter{index}", jsonParameters);

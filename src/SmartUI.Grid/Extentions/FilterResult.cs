@@ -47,13 +47,13 @@
             return source.OrderBy(orderQuery);
         }
 
-        public static IQueryable<T> Filter<T>(this IQueryable<T> dataSource, IEnumerable<QueryFilterRule> queryFilters)
+        public static IQueryable<T> Filter<T>(this IQueryable<T> dataSource, IEnumerable<FilterRuleModel> queryFilters)
         {
             if (queryFilters == null || queryFilters.Count() == 0)
                 return dataSource;
 
             Expression<Func<T, bool>> filterExpression = null;
-            foreach (QueryFilterRule queryFilter in queryFilters.Where(e => e != null).OrderBy(f => f.DisplayOrder))
+            foreach (FilterRuleModel queryFilter in queryFilters.Where(e => e != null).OrderBy(f => f.DisplayOrder))
             {
                 var filterType = ObjectFilter.FromFilterName(queryFilter.FilterOperation);
                 var filterRuleExpression = filterType.GenerateExpression<T>(queryFilter.Field, queryFilter.Value1, queryFilter.Value2);

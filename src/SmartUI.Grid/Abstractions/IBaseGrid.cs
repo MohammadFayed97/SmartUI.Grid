@@ -1,9 +1,7 @@
 ﻿namespace SmartUI.Grid.Abstractions
 {
-    public interface IBaseGrid<TColumns, TColumn>
-        where TColumns : IBaseGridColumns<TColumn>
-        where TColumn : IBaseGridColumn
+    public interface IBaseGrid
     {
-        void AddGridColumns(TColumns gridColumns);
+        void AddGridColumns(GridColumns gridColumns);
     }
 }

@@ -2,14 +2,13 @@
 {
     using AntiRap.Core.Utilities;
     using Microsoft.AspNetCore.Components;
-    using SmartUI.Grid.Abstractions;
     using System;
     using System.Threading.Tasks;
 
-    public abstract class BaseGridColumn : BaseComponent, IBaseGridColumn
+    public abstract class BaseGridColumn : BaseComponent
     {
         public Guid columnId;
-        public event EventHandler? ColumnStateChanged;
+        public event EventHandler ColumnStateChanged;
         protected string propertyName;
         
         public override Task SetParametersAsync(ParameterView parameters)

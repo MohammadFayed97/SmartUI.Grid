@@ -2,7 +2,7 @@
 {
     using AntiRap.Core.DynamicFilter;
 
-    public class QueryFilterRule
+    public class FilterRuleModel
     {
         public string? Field { get; set; }
         public int DisplayOrder { get; set; }

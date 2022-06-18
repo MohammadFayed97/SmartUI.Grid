@@ -2,10 +2,9 @@
 {
     using System.Collections.Generic;
 
-    public interface IBaseGridColumns<TColumn>
-        where TColumn : IBaseGridColumn
+    public interface IBaseGridColumns
     {
-        void AddColumn(TColumn column);
-        List<TColumn> GetAllColumns();
+        void AddColumn(GridColumn column);
+        List<GridColumn> GetAllColumns();
     }
 }

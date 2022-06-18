@@ -2,7 +2,7 @@
 {
     using System.Collections.Generic;
 
-    public class FilterQuery
+    public class FilterationData
     {
         const int MaxPageSize = 50;
         public int PageNumber { get; set; } = 1;
@@ -13,6 +13,6 @@
             set => _pageSize = value > MaxPageSize ? MaxPageSize : value;
         }
         public string? OrderBy { get; set; }
-        public IEnumerable<QueryFilterRule>? FilterRules { get; set; }
+        public IEnumerable<FilterRuleModel>? FilterRules { get; set; }
     }
 }
