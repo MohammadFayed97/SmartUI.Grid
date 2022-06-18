@@ -142,7 +142,7 @@
         private GridRowSetting InvokeQueryCellInfo(TSource data)
         {
             QueryCellInfoEventArgs<TSource> cellInfo = new QueryCellInfoEventArgs<TSource>(data);
-            QueryCellInfo.Invoke(cellInfo);
+            QueryCellInfo?.Invoke(cellInfo);
 
             return cellInfo.Row;
         }
